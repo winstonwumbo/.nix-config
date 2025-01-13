@@ -42,6 +42,9 @@
     LC_TIME = "en_US.UTF-8";
   };
 
+  # Enable experimental Nix features
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
@@ -106,9 +109,14 @@
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
   #  wget
-	git
+	gnomeExtensions.dash-to-panel
+	vagrant
 	vscode-fhs	
   ];
+
+  # Virtualization
+  virtualisation.virtualbox.host.enable = true;
+  users.extraGroups.vboxusers.members = [ "ruyu" ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

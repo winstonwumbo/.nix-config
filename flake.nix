@@ -1,33 +1,29 @@
 {
-  description = "A simple NixOS flake";
+  description = "Home Manager configuration of ruyu";
 
   inputs = {
-    # NixOS official package source, using the nixos-24.11 branch here
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    # Specify the source of Home Manager and Nixpkgs.
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     home-manager = {
-      url = "github:nix-community/home-manager/release-24.11";
-      # The `follows` keyword in inputs is used for inheritance.
+      url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+  outputs = { nixpkgs, home-manager, ... }:
+    let
       system = "x86_64-linux";
-      modules = [
-        # Import the previous configuration.nix,
-        # so the old configuration file still takes effect
-        ./configuration.nix
-          # make home-manager as a module of nixos
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
+      pkgs = nixpkgs.legacyPackages.${system};
+    in {
+      homeConfigurations."ruyu" = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
 
-            # TODO replace ryan with your own username
-            home-manager.users.ruyu = import ./home.nix;
-          }
-      ];
+        # Specify your home configuration modules here, for example,
+        # the path to your home.nix.
+        modules = [ ./home.nix ];
+
+        # Optionally use extraSpecialArgs
+        # to pass through arguments to home.nix
+      };
     };
-  };
 }
